@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    audio {
+      margin: 0 auto 30px;
+      display: block;
+    }
+
+    .box {
+      width: 350px;
+      border: 1px solid #333;
+      height: 253px;
+      margin: auto;
+    }
+
+    .div {
+      width: 100%;
+      margin: 0 auto;
+      height: 200px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .div>ul {
+      position: absolute;
+      left: 0;
+      top: 100px;
+      width: 100%;
+      transition: top .2s linear;
+    }
+
+    .div>ul>li {
+      list-style: none;
+      height: 20px;
+      line-height: 20px;
+      text-align: center;
+
+      transition: all .2s linear;
+    }
+
+    .div>ul>li.active {
+      background-color: skyblue;
+      color: #fff;
+    }
+    .bottom{
+      height: 50px;
+      border-top: 1px solid #e1e1e1;
+    }
+    .bottom audio{
+      height: 50px;
+    }
+  </style>
+</head>
+
+<body>
+
+
+  <div class="box">
+    <div class="div">
+      <ul>
+        <li class="active">1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+        <li>6</li>
+        <li>7</li>
+        <li>8</li>
+        <li>9</li>
+        <li>10</li>
+      </ul>
+    </div>
+    <div class="bottom">
+      <audio src="./music/生而平凡-王富贵.mp3" controls></audio>
+    </div>
+
+  </div>
+
+
+  <script src="./music/lrc.js"></script>
+  <script>
+    // 需要获取歌词的时间和歌词
+    //拆开处理  歌词放到一个数组中 事件时间放到一个数组中 
+
+    // 1.获取歌词 每个歌词放到li中  多个li放到ul中
+    // dom获取ul 然后拼接字符串 最后赋值给ul innerHTML
+    // 2.通过audio标签获取歌曲的播放时间
+    // audio标签有个事件 ontimeupdate 获取改变的时间  
+
+    // 3.通过歌曲的播放时间和歌词的时间进行比较
+    // 4.如果是就让对应的li往上滚动高亮显示
+
+
+    var lrcArr = [];
+    var timeArr = [];
+
+    var reg = /\[(\d{2}:\d{2})\.\d{3}\](.+)/g;
+
+    var res = reg.exec(lrc);
+    // console.log(res[0]);
+    // console.log(reg.exec(lrc)[2]);
+    // console.log(reg.exec(lrc)[2]);
+    // console.log(reg.exec(lrc)[2]);
+    // console.log(reg.exec(lrc)[2]);
+    // console.log(reg.exec(lrc)[2]);
+    // console.log(reg.exec(lrc)[2]);
+    // console.log(reg.exec(lrc)[2]);
+    // console.log(reg.exec(lrc)[2]);
+
+
+    while (res !== null) {
+      timeArr.push(res[1]);
+      lrcArr.push(res[2]);
+      res = reg.exec(lrc);
+    }
+    console.log(lrcArr);
+    console.log(timeArr);
+
+    var ul = document.querySelector('ul');
+
+    ul.innerHTML = lrcArr.reduce(function (prev, item) {
+      return prev + '<li>' + item + '</li>';
+    }, '');
+
+
+    // 拿到音频标签 
+
+    var audio = document.querySelector('audio');
+    audio.ontimeupdate = function () {
+      // console.log(this.currentTime);
+      var duration = Math.floor(this.currentTime);
+      var minutes = parseInt(duration / 60);
+      var seconds = duration % 60;
+
+      minutes = minutes < 10 ? '0' + minutes : minutes;
+      seconds = seconds < 10 ? '0' + seconds : seconds;
+
+      var res = minutes + ':' + seconds;
+      var index = timeArr.indexOf(res);
+      if (index === -1) {
+        return;
+      }
+
+      // index 就是时间对应的索引 
+
+      // index 0  ul 的top值 100
+      // index 1             80 
+      // index 2             60
+      //       3             40 
+
+      ul.style.top = 100 - index * 20 + 'px';
+      // 移出所有的高亮 
+      // 给当前的高亮
+      for (var i = 0; i < ul.children.length; i++) {
+        ul.children[i].classList.remove('active');
+      }
+      // 当前时间对应的歌词高亮
+      ul.children[index].classList.add('active');
+
+
+    }
+
+
+
+
+  </script>
+</body>
+
+</html>
